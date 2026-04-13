@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ScuolaBet 🎰</title>
+  <link rel="icon" type="image/png" href="/favicon-96x961.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="/favicon1.svg" />
+  <link rel="shortcut icon" href="/favicon1.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon1.png" />
+  <link rel="manifest" href="/site1.webmanifest" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- ========== LOADING ========== -->
+<div id="loading-screen" class="screen active" style="align-items:center;justify-content:center;background:var(--bg);">
+  <div style="text-align:center;">
+    <div style="font-family:'Bebas Neue',cursive;font-size:60px;background:linear-gradient(135deg,#39ff14,#00e676,#ffd700);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">ScuolaBet</div>
+    <div style="color:#6b8c6b;font-size:14px;margin-top:12px;letter-spacing:2px;">CONNESSIONE IN CORSO...</div>
+    <div style="margin-top:24px;display:flex;gap:8px;justify-content:center;">
+      <div class="dot-pulse"></div>
+      <div class="dot-pulse" style="animation-delay:.2s"></div>
+      <div class="dot-pulse" style="animation-delay:.4s"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== AUTH ========== -->
+<div id="auth-screen" class="screen">
+  <div class="auth-logo">
+    <h1>ScuolaBet</h1>
+    <p>Scommetti con i tuoi compagni 🏫</p>
+  </div>
+  <div class="auth-box">
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchAuthTab('login')">Accedi</button>
+      <button class="auth-tab" onclick="switchAuthTab('register')">Registrati</button>
+    </div>
+    <div id="auth-error" class="auth-error"></div>
+    <div id="login-form">
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" id="login-user" placeholder="es. marco99" autocomplete="off">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="login-pass" placeholder="••••••••">
+      </div>
+      <button class="btn-primary" onclick="doLogin()">Entra nel sito 🎰</button>
+    </div>
+    <div id="register-form" style="display:none;">
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" id="reg-user" placeholder="es. gianni_bello" autocomplete="off">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="reg-pass" placeholder="Crea una password">
+      </div>
+      <div class="form-group">
+        <label>Scegli il tuo avatar</label>
+        <div class="avatar-picker" id="avatar-picker"></div>
+      </div>
+      <button class="btn-primary" onclick="doRegister()">Crea account 🚀</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== MAIN ========== -->
+<div id="main-screen" class="screen">
+  <header>
+    <div class="header-inner">
+      <div class="logo-small">ScuolaBet</div>
+      <div class="user-bar">
+        <div class="credits-badge"><span>🪙</span> <span id="header-credits">0</span></div>
+        <span id="header-badge"></span>
+        <div class="settings-wrap" id="settings-wrap">
+          <button class="settings-trigger" onclick="toggleSettings()" id="settings-trigger">
+            <div id="header-avatar" class="avatar-display"></div>
+            <div class="username-pill" id="header-username"></div>
+            <span class="settings-caret" id="settings-caret">▾</span>
+          </button>
+          <div class="settings-dropdown" id="settings-dropdown">
+            <div class="settings-section-label">Avatar</div>
+            <div class="settings-avatar-grid" id="settings-avatar-grid"></div>
+            <div class="settings-divider"></div>
+            <button class="settings-item" onclick="doLogout()"><span>🚪</span> Esci</button>
+            <button class="settings-item settings-item--danger" onclick="confirmDeleteOwnAccount()"><span>🗑️</span> Elimina account</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div style="width:100%;overflow:hidden;background:var(--surface);border-bottom:1px solid #2a3a2a;">
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="showView('home')" id="tab-home">🏠 Home</button>
+      <button class="nav-tab" onclick="showView('mybets')" id="tab-mybets">📋 Le mie scommesse</button>
+      <button class="nav-tab" onclick="showView('leaderboard')" id="tab-leaderboard">🏆 Classifica</button>
+      <button class="nav-tab" id="tab-admin" onclick="showView('admin')" style="display:none;">⚙️ Admin</button>
+    </div>
+  </div>
+
+  <div class="main-content">
+
+    <!-- HOME -->
+    <div id="view-home" class="view active">
+      <div class="hero-banner">
+        <h2>Benvenuto su ScuolaBet</h2>
+        <p>Scommetti con crediti virtuali sugli eventi della tua scuola</p>
+        <div class="hero-stats">
+          <div class="stat"><div class="n" id="stat-scommesse">0</div><div class="l">Scommesse aperte</div></div>
+          <div class="stat"><div class="n" id="stat-giocatori">0</div><div class="l">Giocatori</div></div>
+          <div class="stat"><div class="n" id="stat-piazzate">0</div><div class="l">Piazzate oggi</div></div>
+        </div>
+      </div>
+      <div class="home-tabs">
+        <button class="home-tab active" onclick="switchHomeTab('voti', this)">📊 Compagni</button>
+        <button class="home-tab" onclick="switchHomeTab('prof', this)">🧑‍🏫 Professori</button>
+        <button class="home-tab" onclick="switchHomeTab('altro', this)">🎉 Altro</button>
+      </div>
+      <div id="people-search-wrap" style="margin-bottom:16px;">
+        <input type="text" id="people-search" placeholder="🔍 Cerca..." oninput="filterPeople()" class="search-input">
+      </div>
+      <div id="home-people-grid" class="people-grid"></div>
+      <div id="home-person-bets" style="display:none;">
+        <button class="btn-back" onclick="backToPeople()">← Torna indietro</button>
+        <div id="home-person-header" class="person-header"></div>
+        <div class="home-tabs" id="person-tabs" style="margin-bottom:16px;">
+          <button class="home-tab active" onclick="switchPersonTab('stats', this)">📊 Statistiche</button>
+          <button class="home-tab" onclick="switchPersonTab('bets', this)">🎲 Scommesse</button>
+        </div>
+        <div id="person-tab-stats"><div id="home-person-stats"></div></div>
+        <div id="person-tab-bets" style="display:none;"><div id="home-person-bets-list"></div></div>
+      </div>
+      <div id="home-altro-bets" style="display:none;">
+        <div id="bets-container"></div>
+      </div>
+    </div>
+
+    <!-- MY BETS -->
+    <div id="view-mybets" class="view">
+      <div class="section-title">📋 Le mie scommesse</div>
+      <div class="filter-bar">
+        <button class="filter-btn active" onclick="setFilter('all', this)">Tutte</button>
+        <button class="filter-btn" onclick="setFilter('pending', this)">⏳ In corso</button>
+        <button class="filter-btn" onclick="setFilter('won', this)">✅ Vinte</button>
+        <button class="filter-btn" onclick="setFilter('lost', this)">❌ Perse</button>
+      </div>
+      <div id="mybets-container" class="mybets-list"></div>
+    </div>
+
+    <!-- LEADERBOARD -->
+    <div id="view-leaderboard" class="view">
+      <div class="section-title">🏆 Classifica Giocatori</div>
+      <div id="leaderboard-container"></div>
+    </div>
+
+    <!-- ADMIN -->
+    <div id="view-admin" class="view">
+      <div class="admin-tabs">
+        <button class="admin-tab active" onclick="switchAdminTab('scommesse', this)">🎲 Scommesse</button>
+        <button class="admin-tab" onclick="switchAdminTab('persone', this)">👥 Persone</button>
+        <button class="admin-tab" onclick="switchAdminTab('utenti', this)">🙍 Utenti</button>
+      </div>
+
+      <!-- SCOMMESSE -->
+      <div id="admin-tab-scommesse" class="admin-tab-content active">
+        <div class="admin-panel">
+          <h3>➕ Crea nuova scommessa</h3>
+          <div class="form-group">
+            <label>Categoria</label>
+            <select id="new-cat" onchange="onNewCatChange()">
+              <option value="voti">📊 Voti & Interrogazioni</option>
+              <option value="prof">🧑‍🏫 Prof (ritardi/assenze)</option>
+              <option value="compiti">📝 Compiti in classe</option>
+              <option value="eventi">🎉 Eventi scolastici</option>
+            </select>
+          </div>
+          <div class="form-group" id="new-person-group">
+            <label>Persona</label>
+            <select id="new-person-select" onchange="onNewPersonChange()"><option value="">-- Seleziona --</option></select>
+          </div>
+          <div class="form-group" id="new-subject-group" style="display:none;">
+            <label>Materia</label>
+            <select id="new-subject-select" onchange="onSubjectChange()"><option value="">-- Seleziona materia --</option></select>
+          </div>
+          <div id="ai-generator-wrap" style="display:none;">
+            <button class="btn-ai-generate" id="btn-ai-generate" onclick="generateWithAI()">
+              <span id="ai-btn-icon">✨</span>
+              <span id="ai-btn-text">Genera automaticamente</span>
+            </button>
+            <div id="ai-suggestion-box" style="display:none;" class="ai-suggestion-box">
+              <div class="ai-suggestion-label">💡 Generato dalle statistiche — modifica se vuoi, poi pubblica</div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Domanda</label>
+            <input type="text" id="new-title" placeholder="Es: Prenderà più di 6 in matematica?" class="admin-input">
+          </div>
+          <div class="form-group">
+            <label>Descrizione (opzionale)</label>
+            <textarea id="new-desc" placeholder="Dettagli aggiuntivi..."></textarea>
+          </div>
+          <div class="form-group">
+            <label>Opzioni di scommessa</label>
+            <div class="options-builder" id="options-builder">
+              <div class="option-row">
+                <input type="text" placeholder="Opzione (es. Sì)" value="Sì">
+                <input type="number" class="odd-input" value="1.8" step="0.1" min="1.0">
+                <button class="btn-remove-opt" onclick="removeOption(this)">✕</button>
+              </div>
+              <div class="option-row">
+                <input type="text" placeholder="Opzione (es. No)" value="No">
+                <input type="number" class="odd-input" value="2.1" step="0.1" min="1.0">
+                <button class="btn-remove-opt" onclick="removeOption(this)">✕</button>
+              </div>
+            </div>
+            <button class="btn-add-option" style="margin-top:8px;" onclick="addOptionRow()">+ Aggiungi opzione</button>
+          </div>
+          <button class="btn-primary" onclick="createBet()">Pubblica scommessa 🚀</button>
+        </div>
+        <div class="admin-panel">
+          <h3>⚖️ Chiudi & Assegna risultato</h3>
+          <div class="form-group">
+            <label>Scommessa</label>
+            <select id="resolve-bet-select"><option value="">-- Seleziona scommessa --</option></select>
+          </div>
+          <div class="form-group">
+            <label>Opzione vincente</label>
+            <select id="resolve-option-select"><option value="">-- Prima seleziona la scommessa --</option></select>
+          </div>
+          <button class="btn-primary" onclick="resolveBet()">Assegna vincita 🏆</button>
+        </div>
+        <div class="admin-panel">
+          <h3>✏️ Modifica / Elimina scommessa</h3>
+          <div class="form-group">
+            <label>Scommessa da modificare</label>
+            <select id="edit-bet-select" onchange="loadBetIntoEditor()"><option value="">-- Seleziona scommessa aperta --</option></select>
+          </div>
+          <div id="edit-bet-form" style="display:none;">
+            <div id="edit-warning" class="edit-warning" style="display:none;"></div>
+            <div class="form-group">
+              <label>Categoria</label>
+              <select id="edit-cat">
+                <option value="voti">📊 Voti & Interrogazioni</option>
+                <option value="prof">🧑‍🏫 Ritardi/Assenze Prof</option>
+                <option value="compiti">📝 Compiti in classe</option>
+                <option value="eventi">🎉 Eventi scolastici</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Domanda</label>
+              <input type="text" id="edit-title" class="admin-input">
+            </div>
+            <div class="form-group">
+              <label>Descrizione (opzionale)</label>
+              <textarea id="edit-desc"></textarea>
+            </div>
+            <div class="form-group">
+              <label>Opzioni & Quote</label>
+              <div class="options-builder" id="edit-options-builder"></div>
+              <button class="btn-add-option" style="margin-top:8px;" onclick="addEditOptionRow()">+ Aggiungi opzione</button>
+            </div>
+            <div style="display:flex;gap:10px;margin-top:4px;">
+              <button class="btn-primary" style="flex:1;" onclick="saveEditBet()">💾 Salva modifiche</button>
+              <button class="btn-delete-bet" onclick="confirmDeleteBet()">🗑️ Elimina</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PERSONE -->
+      <div id="admin-tab-persone" class="admin-tab-content">
+        <div class="admin-panel">
+          <h3>➕ Aggiungi persona</h3>
+          <div class="form-row">
+            <div class="form-group" style="margin:0;">
+              <label>Nome</label>
+              <input type="text" id="new-person-name" placeholder="es. Marco Rossi" class="admin-input">
+            </div>
+            <div class="form-group" style="margin:0;">
+              <label>Tipo</label>
+              <select id="new-person-type">
+                <option value="compagno">🎒 Compagno</option>
+                <option value="prof">🧑‍🏫 Professore</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn-primary" style="margin-top:14px;" onclick="addPerson()">Aggiungi ➕</button>
+        </div>
+        <div class="admin-panel">
+          <h3>📚 Gestisci materie</h3>
+          <div style="display:flex;gap:10px;margin-bottom:12px;">
+            <input type="text" id="new-subject-name" placeholder="es. Matematica" class="admin-input" style="flex:1;">
+            <button class="btn-primary" style="width:auto;padding:12px 18px;white-space:nowrap;" onclick="addSubject()">Aggiungi ➕</button>
+          </div>
+          <div id="subjects-list" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
+        </div>
+        <div class="admin-panel">
+          <h3>📈 Inserisci statistiche compagno</h3>
+          <div class="form-group">
+            <label>Compagno</label>
+            <select id="stats-person-select" onchange="loadPersonStats()"><option value="">-- Seleziona compagno --</option></select>
+          </div>
+          <div id="stats-editor" style="display:none;">
+            <div class="form-row" style="margin-bottom:16px;">
+              <div class="form-group" style="margin:0;">
+                <label>Comportamento (1-10)</label>
+                <input type="number" id="stats-comportamento" min="1" max="10" step="0.1" class="admin-input">
+              </div>
+              <div class="form-group" style="margin:0;">
+                <label>Assenze totali</label>
+                <input type="number" id="stats-assenze" min="0" class="admin-input">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Voti per materia</label>
+              <div id="stats-subjects-editor" style="display:flex;flex-direction:column;gap:10px;"></div>
+            </div>
+            <button class="btn-primary" style="margin-top:8px;" onclick="savePersonStats()">💾 Salva statistiche</button>
+          </div>
+        </div>
+        <div class="admin-panel">
+          <h3>👥 Lista persone</h3>
+          <div id="people-list" style="display:flex;flex-direction:column;gap:8px;"></div>
+        </div>
+      </div>
+
+      <!-- UTENTI -->
+      <div id="admin-tab-utenti" class="admin-tab-content">
+        <div class="admin-panel">
+          <h3>🎁 Dai crediti</h3>
+          <div class="form-row">
+            <div class="form-group" style="margin:0;">
+              <label>Utente</label>
+              <select id="gift-user-select"></select>
+            </div>
+            <div class="form-group" style="margin:0;">
+              <label>Crediti</label>
+              <input type="number" id="gift-amount" placeholder="500" value="500" class="admin-input">
+            </div>
+          </div>
+          <button class="btn-primary" style="margin-top:14px;" onclick="giftCredits()">Invia crediti 🪙</button>
+        </div>
+        <div class="admin-panel">
+          <h3>🗑️ Elimina profilo</h3>
+          <div class="form-group">
+            <label>Utente da eliminare</label>
+            <select id="delete-user-select"></select>
+          </div>
+          <button class="btn-delete-bet" style="width:100%;padding:13px;border-radius:10px;font-size:15px;" onclick="confirmDeleteUser()">Elimina profilo 🗑️</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- SLIP TOGGLE -->
+<button class="slip-toggle hidden" id="slip-toggle-btn" onclick="toggleSlip()">
+  🎟️ Schedina <span class="badge" id="slip-badge">0</span>
+</button>
+
+<!-- BET SLIP -->
+<div class="bet-slip" id="bet-slip">
+  <div class="slip-header">
+    <h3>🎟️ Schedina</h3>
+    <button class="slip-close" onclick="toggleSlip()">✕</button>
+  </div>
+  <div class="slip-items" id="slip-items"></div>
+  <div class="slip-footer">
+    <div class="slip-amount">
+      <label>Puntata (🪙)</label>
+      <input type="number" id="slip-stake" value="100" min="10" onchange="updateSlipTotals()">
+    </div>
+    <div class="slip-totals">
+      <div class="row"><span>Quota totale</span><span class="val" id="slip-total-odd">x1.00</span></div>
+      <div class="row big"><span>Vincita potenziale</span><span class="val" id="slip-total-win">🪙 100</span></div>
+    </div>
+    <button class="btn-piazza" onclick="placeBet()">Piazza scommessa ✔️</button>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <h3 id="modal-title">Conferma</h3>
+    <p id="modal-body">Sei sicuro?</p>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Annulla</button>
+      <button class="btn-primary" id="modal-confirm-btn">Conferma</button>
+    </div>
+  </div>
+</div>
+
+<div class="notif" id="notif"></div>
+
+<script type="module" src="/src/main.js"></script>
+</body>
+</html>

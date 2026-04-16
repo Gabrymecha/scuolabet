@@ -1,0 +1,22 @@
+{
+    "mcpServers": {
+      "firebase": {
+        "command": "npx",
+        "args": ["-y", "@anthropic/mcp-server-firebase"],
+        "env": {
+          "FIREBASE_PROJECT_ID": "scuolabet-b45ee"
+        }
+      },
+      "github": {
+        "command": "npx",
+        "args": ["-y", "@modelcontextprotocol/server-github"],
+        "env": {
+          "GITHUB_TOKEN": "IL_TUO_TOKEN_GITHUB"
+        }
+      },
+      "filesystem": {
+        "command": "npx",
+        "args": ["-y", "@modelcontextprotocol/server-filesystem", "/percorso/assoluto/scuolabet"]
+      }
+    }
+  }
